@@ -65,6 +65,23 @@ app.put('/api/scriptures/:id', (req, res) => {
   }
 });
 
+app.delete('/api/scriptures/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = readData();
+    const next = data.filter((item) => String(item.id) !== String(id));
+
+    if (next.length === data.length) {
+      return res.status(404).json({ error: 'Scripture not found' });
+    }
+
+    writeData(next);
+    res.json({ success: true, data: next });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete scripture' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });
