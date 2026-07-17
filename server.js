@@ -40,6 +40,31 @@ app.post('/api/scriptures', (req, res) => {
   }
 });
 
+app.put('/api/scriptures/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const updated = req.body;
+    const data = readData();
+    const index = data.findIndex((item) => String(item.id) === String(id));
+
+    if (index === -1) {
+      return res.status(404).json({ error: 'Scripture not found' });
+    }
+
+    data[index] = {
+      ...data[index],
+      ...updated,
+      id: String(id),
+      updatedAt: new Date().toISOString(),
+    };
+
+    writeData(data);
+    res.json({ success: true, data: data[index] });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update scripture' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });
