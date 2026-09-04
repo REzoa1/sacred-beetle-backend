@@ -1,7 +1,7 @@
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
-const fs = require("fs");
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -9,10 +9,10 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-const dataPath = path.join(__dirname, "data", "scriptures.json");
+const dataPath = path.join(__dirname, 'data', 'scriptures.json');
 
 function readData() {
-  const raw = fs.readFileSync(dataPath, "utf8");
+  const raw = fs.readFileSync(dataPath, 'utf8');
   return JSON.parse(raw);
 }
 
@@ -20,27 +20,27 @@ function writeData(data) {
   fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
 }
 
-app.get("/api/scriptures", (req, res) => {
+app.get('/api/scriptures', (req, res) => {
   try {
     const data = readData();
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: "Failed to read scriptures" });
+    res.status(500).json({ error: 'Failed to read scriptures' });
   }
 });
 
-app.post("/api/scriptures", (req, res) => {
+app.post('/api/scriptures', (req, res) => {
   try {
     const payload = req.body;
     const data = Array.isArray(payload) ? payload : [payload];
     writeData(data);
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ error: "Failed to save scriptures" });
+    res.status(500).json({ error: 'Failed to save scriptures' });
   }
 });
 
-app.put("/api/scriptures/:id", (req, res) => {
+app.put('/api/scriptures/:id', (req, res) => {
   try {
     const { id } = req.params;
     const updated = req.body;
@@ -48,7 +48,7 @@ app.put("/api/scriptures/:id", (req, res) => {
     const index = data.findIndex((item) => String(item.id) === String(id));
 
     if (index === -1) {
-      return res.status(404).json({ error: "Scripture not found" });
+      return res.status(404).json({ error: 'Scripture not found' });
     }
 
     data[index] = {
@@ -61,33 +61,24 @@ app.put("/api/scriptures/:id", (req, res) => {
     writeData(data);
     res.json({ success: true, data: data[index] });
   } catch (error) {
-    res.status(500).json({ error: "Failed to update scripture" });
+    res.status(500).json({ error: 'Failed to update scripture' });
   }
 });
 
-app.delete("/api/scriptures/:id", (req, res) => {
+app.delete('/api/scriptures/:id', (req, res) => {
   try {
     const { id } = req.params;
     const data = readData();
     const next = data.filter((item) => String(item.id) !== String(id));
 
     if (next.length === data.length) {
-      return res.status(404).json({ error: "Scripture not found" });
+      return res.status(404).json({ error: 'Scripture not found' });
     }
 
     writeData(next);
     res.json({ success: true, data: next });
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete scripture" });
-  }
-});
-
-app.get("/debug/scriptures-file", (req, res) => {
-  try {
-    const raw = fs.readFileSync(dataPath, "utf8");
-    res.json(JSON.parse(raw));
-  } catch (error) {
-    res.status(500).json({ error: "File not found or broken" });
+    res.status(500).json({ error: 'Failed to delete scripture' });
   }
 });
 
